@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: career-coach
+
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:career_coach}
+    username: ${DB_USER:career}
+    password: ${DB_PASSWORD:career}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8080}
+  max-http-request-header-size: 65536
+  tomcat:
+    max-http-request-header-size: 65536
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+logging:
+  level:
+    root: INFO
+    com.zak.careercoach: INFO
+    org.springframework.security: INFO
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-production-this-must-be-at-least-256-bits-long-secret}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+
+  adzuna:
+    app-id: ${ADZUNA_APP_ID:}
+    app-key: ${ADZUNA_APP_KEY:}
+    country: ${ADZUNA_COUNTRY:it}
+
+  remoteok:
+    enabled: ${REMOTEOK_ENABLED:true}

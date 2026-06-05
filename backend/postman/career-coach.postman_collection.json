@@ -1,0 +1,572 @@
+{
+  "info": {
+    "_postman_id": "career-coach-collection",
+    "name": "Career Coach API",
+    "description": "Tutti gli endpoint del backend Career Coach. Esegui i request di Auth per primi: i token vengono salvati automaticamente nelle variabili della collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Candidate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('candidate_token', j.token);",
+                  "pm.collectionVariables.set('candidate_id', j.userId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"password123\",\n  \"name\": \"Mario\",\n  \"surname\": \"Rossi\",\n  \"role\": \"CANDIDATE\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/register","host":["{{base_url}}"],"path":["auth","register"]}
+          }
+        },
+        {
+          "name": "Register Recruiter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('recruiter_token', j.token);",
+                  "pm.collectionVariables.set('recruiter_id', j.userId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"email\": \"recruiter@test.com\",\n  \"password\": \"password123\",\n  \"name\": \"Anna\",\n  \"surname\": \"Bianchi\",\n  \"role\": \"RECRUITER\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/register","host":["{{base_url}}"],"path":["auth","register"]}
+          }
+        },
+        {
+          "name": "Login Admin (default)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('admin_token', j.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"email\": \"admin@career.coach\",\n  \"password\": \"admin123\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+          }
+        },
+        {
+          "name": "Login Candidate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('candidate_token', j.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"password123\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /users/me",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/users/me","host":["{{base_url}}"],"path":["users","me"]}
+          }
+        },
+        {
+          "name": "PATCH /users/me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"name\": \"Mario Aggiornato\",\n  \"profileImageUrl\": \"https://i.pravatar.cc/200\"\n}"},
+            "url": {"raw":"{{base_url}}/users/me","host":["{{base_url}}"],"path":["users","me"]}
+          }
+        },
+        {
+          "name": "GET /users (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{admin_token}}"}],
+            "url": {"raw":"{{base_url}}/users","host":["{{base_url}}"],"path":["users"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "GET /companies (public)",
+          "request": {
+            "method": "GET",
+            "url": {"raw":"{{base_url}}/companies","host":["{{base_url}}"],"path":["companies"]}
+          }
+        },
+        {
+          "name": "POST /companies (recruiter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('company_id', j.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{recruiter_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"name\": \"Acme Tech\",\n  \"description\": \"Software house\",\n  \"website\": \"https://acme.example\",\n  \"location\": \"Roma\"\n}"},
+            "url": {"raw":"{{base_url}}/companies","host":["{{base_url}}"],"path":["companies"]}
+          }
+        },
+        {
+          "name": "GET /companies/{id}",
+          "request": {
+            "method": "GET",
+            "url": {"raw":"{{base_url}}/companies/{{company_id}}","host":["{{base_url}}"],"path":["companies","{{company_id}}"]}
+          }
+        },
+        {
+          "name": "PATCH /companies/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{recruiter_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"description\": \"Software house leader in Italia\"\n}"},
+            "url": {"raw":"{{base_url}}/companies/{{company_id}}","host":["{{base_url}}"],"path":["companies","{{company_id}}"]}
+          }
+        },
+        {
+          "name": "GET /companies/mine",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{recruiter_token}}"}],
+            "url": {"raw":"{{base_url}}/companies/mine","host":["{{base_url}}"],"path":["companies","mine"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalogo (Categories, Skills)",
+      "item": [
+        {
+          "name": "GET /categories",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/categories","host":["{{base_url}}"],"path":["categories"]}}
+        },
+        {
+          "name": "GET /skills",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/skills","host":["{{base_url}}"],"path":["skills"]}}
+        }
+      ]
+    },
+    {
+      "name": "Jobs (CRUD + filtri)",
+      "item": [
+        {
+          "name": "POST /jobs (recruiter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('job_id', j.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{recruiter_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"title\": \"Backend Java Developer\",\n  \"description\": \"Cerchiamo dev Spring Boot per progetto ecommerce.\",\n  \"salaryMin\": 35000,\n  \"salaryMax\": 55000,\n  \"currency\": \"EUR\",\n  \"contractType\": \"FULL_TIME\",\n  \"remote\": true,\n  \"location\": \"Roma\",\n  \"companyId\": {{company_id}},\n  \"skills\": [\"Java\",\"Spring\",\"PostgreSQL\",\"REST API\"]\n}"},
+            "url": {"raw":"{{base_url}}/jobs","host":["{{base_url}}"],"path":["jobs"]}
+          }
+        },
+        {
+          "name": "GET /jobs (lista paginata)",
+          "request": {
+            "method": "GET",
+            "url": {"raw":"{{base_url}}/jobs?page=0&size=20&sort=postedAt,desc","host":["{{base_url}}"],"path":["jobs"],"query":[{"key":"page","value":"0"},{"key":"size","value":"20"},{"key":"sort","value":"postedAt,desc"}]}
+          }
+        },
+        {
+          "name": "GET /jobs con filtri",
+          "request": {
+            "method": "GET",
+            "url": {"raw":"{{base_url}}/jobs?q=java&location=roma&remote=true&minSalary=30000&contractTypes=FULL_TIME&skills=java,spring&page=0&size=10&sort=postedAt,desc","host":["{{base_url}}"],"path":["jobs"],"query":[{"key":"q","value":"java"},{"key":"location","value":"roma"},{"key":"remote","value":"true"},{"key":"minSalary","value":"30000"},{"key":"contractTypes","value":"FULL_TIME"},{"key":"skills","value":"java,spring"},{"key":"page","value":"0"},{"key":"size","value":"10"},{"key":"sort","value":"postedAt,desc"}]}
+          }
+        },
+        {
+          "name": "GET /jobs/{id}",
+          "request": {
+            "method": "GET",
+            "url": {"raw":"{{base_url}}/jobs/{{job_id}}","host":["{{base_url}}"],"path":["jobs","{{job_id}}"]}
+          }
+        },
+        {
+          "name": "PATCH /jobs/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{recruiter_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"salaryMax\": 60000,\n  \"status\": \"OPEN\"\n}"},
+            "url": {"raw":"{{base_url}}/jobs/{{job_id}}","host":["{{base_url}}"],"path":["jobs","{{job_id}}"]}
+          }
+        },
+        {
+          "name": "DELETE /jobs/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key":"Authorization","value":"Bearer {{recruiter_token}}"}],
+            "url": {"raw":"{{base_url}}/jobs/{{job_id}}","host":["{{base_url}}"],"path":["jobs","{{job_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resumes",
+      "item": [
+        {
+          "name": "POST /resumes (candidato)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('resume_id', j.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"title\": \"CV principale\",\n  \"summary\": \"Sviluppatore Java con 2 anni di esperienza\",\n  \"skillsText\": \"Java, Spring, JPA, SQL, Git\",\n  \"experienceText\": \"Junior dev presso XYZ (2024-2026)\",\n  \"educationText\": \"Laurea triennale Informatica\"\n}"},
+            "url": {"raw":"{{base_url}}/resumes","host":["{{base_url}}"],"path":["resumes"]}
+          }
+        },
+        {
+          "name": "GET /resumes (i miei)",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/resumes","host":["{{base_url}}"],"path":["resumes"]}
+          }
+        },
+        {
+          "name": "PATCH /resumes/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"summary\": \"Sviluppatore Java con 3 anni di esperienza\"\n}"},
+            "url": {"raw":"{{base_url}}/resumes/{{resume_id}}","host":["{{base_url}}"],"path":["resumes","{{resume_id}}"]}
+          }
+        },
+        {
+          "name": "DELETE /resumes/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/resumes/{{resume_id}}","host":["{{base_url}}"],"path":["resumes","{{resume_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cover Letters",
+      "item": [
+        {
+          "name": "POST /cover-letters/generate (AI)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('cover_letter_id', j.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"jobId\": {{job_id}},\n  \"resumeId\": {{resume_id}},\n  \"tone\": \"FRIENDLY\"\n}"},
+            "url": {"raw":"{{base_url}}/cover-letters/generate","host":["{{base_url}}"],"path":["cover-letters","generate"]}
+          }
+        },
+        {
+          "name": "GET /cover-letters",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/cover-letters","host":["{{base_url}}"],"path":["cover-letters"]}
+          }
+        },
+        {
+          "name": "POST /cover-letters (manuale)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"title\": \"Cover letter manuale\",\n  \"body\": \"Egregio Recruiter, ...\",\n  \"tone\": \"FORMAL\"\n}"},
+            "url": {"raw":"{{base_url}}/cover-letters","host":["{{base_url}}"],"path":["cover-letters"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Reviews",
+      "item": [
+        {
+          "name": "POST /ai-reviews (genera review)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"jobId\": {{job_id}},\n  \"resumeId\": {{resume_id}}\n}"},
+            "url": {"raw":"{{base_url}}/ai-reviews","host":["{{base_url}}"],"path":["ai-reviews"]}
+          }
+        },
+        {
+          "name": "GET /ai-reviews/mine",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/ai-reviews/mine","host":["{{base_url}}"],"path":["ai-reviews","mine"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "POST /applications (candidate apply)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('application_id', j.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{candidate_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"jobId\": {{job_id}},\n  \"resumeId\": {{resume_id}},\n  \"coverLetterId\": {{cover_letter_id}}\n}"},
+            "url": {"raw":"{{base_url}}/applications","host":["{{base_url}}"],"path":["applications"]}
+          }
+        },
+        {
+          "name": "GET /applications/mine",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/applications/mine?page=0&size=20","host":["{{base_url}}"],"path":["applications","mine"],"query":[{"key":"page","value":"0"},{"key":"size","value":"20"}]}
+          }
+        },
+        {
+          "name": "GET /applications/companies/{companyId} (recruiter)",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{recruiter_token}}"}],
+            "url": {"raw":"{{base_url}}/applications/companies/{{company_id}}","host":["{{base_url}}"],"path":["applications","companies","{{company_id}}"]}
+          }
+        },
+        {
+          "name": "GET /applications/jobs/{jobId} (recruiter)",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{recruiter_token}}"}],
+            "url": {"raw":"{{base_url}}/applications/jobs/{{job_id}}","host":["{{base_url}}"],"path":["applications","jobs","{{job_id}}"]}
+          }
+        },
+        {
+          "name": "PATCH /applications/{id}/status (recruiter)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key":"Authorization","value":"Bearer {{recruiter_token}}"},
+              {"key":"Content-Type","value":"application/json"}
+            ],
+            "body": {"mode":"raw","raw":"{\n  \"status\": \"REVIEWED\",\n  \"recruiterNotes\": \"Profilo interessante, organizziamo colloquio\"\n}"},
+            "url": {"raw":"{{base_url}}/applications/{{application_id}}/status","host":["{{base_url}}"],"path":["applications","{{application_id}}","status"]}
+          }
+        },
+        {
+          "name": "DELETE /applications/{id} (withdraw)",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/applications/{{application_id}}","host":["{{base_url}}"],"path":["applications","{{application_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Saved Jobs",
+      "item": [
+        {
+          "name": "POST /saved-jobs/{jobId}",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/saved-jobs/{{job_id}}","host":["{{base_url}}"],"path":["saved-jobs","{{job_id}}"]}
+          }
+        },
+        {
+          "name": "GET /saved-jobs",
+          "request": {
+            "method": "GET",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/saved-jobs","host":["{{base_url}}"],"path":["saved-jobs"]}
+          }
+        },
+        {
+          "name": "DELETE /saved-jobs/{jobId}",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key":"Authorization","value":"Bearer {{candidate_token}}"}],
+            "url": {"raw":"{{base_url}}/saved-jobs/{{job_id}}","host":["{{base_url}}"],"path":["saved-jobs","{{job_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "POST /admin/imports/adzuna",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Authorization","value":"Bearer {{admin_token}}"}],
+            "url": {"raw":"{{base_url}}/admin/imports/adzuna?what=java&where=&howMany=20","host":["{{base_url}}"],"path":["admin","imports","adzuna"],"query":[{"key":"what","value":"java"},{"key":"where","value":""},{"key":"howMany","value":"20"}]}
+          }
+        },
+        {
+          "name": "POST /admin/imports/remoteok",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Authorization","value":"Bearer {{admin_token}}"}],
+            "url": {"raw":"{{base_url}}/admin/imports/remoteok?tag=java","host":["{{base_url}}"],"path":["admin","imports","remoteok"],"query":[{"key":"tag","value":"java"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stats (aggregations)",
+      "item": [
+        {
+          "name": "GET /stats/totals",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/stats/totals","host":["{{base_url}}"],"path":["stats","totals"]}}
+        },
+        {
+          "name": "GET /stats/jobs-by-category",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/stats/jobs-by-category","host":["{{base_url}}"],"path":["stats","jobs-by-category"]}}
+        },
+        {
+          "name": "GET /stats/jobs-by-contract",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/stats/jobs-by-contract","host":["{{base_url}}"],"path":["stats","jobs-by-contract"]}}
+        },
+        {
+          "name": "GET /stats/avg-salary-by-category",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/stats/avg-salary-by-category","host":["{{base_url}}"],"path":["stats","avg-salary-by-category"]}}
+        },
+        {
+          "name": "GET /stats/top-companies",
+          "request": {"method":"GET","url":{"raw":"{{base_url}}/stats/top-companies","host":["{{base_url}}"],"path":["stats","top-companies"]}}
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:8080"},
+    {"key": "admin_token", "value": ""},
+    {"key": "candidate_token", "value": ""},
+    {"key": "recruiter_token", "value": ""},
+    {"key": "candidate_id", "value": ""},
+    {"key": "recruiter_id", "value": ""},
+    {"key": "company_id", "value": ""},
+    {"key": "job_id", "value": ""},
+    {"key": "resume_id", "value": ""},
+    {"key": "cover_letter_id", "value": ""},
+    {"key": "application_id", "value": ""}
+  ]
+}
